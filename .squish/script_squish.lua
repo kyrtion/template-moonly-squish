@@ -1,10 +1,30 @@
-local settings = require('settings_squish')
+local json = require('dkjson')
+
+
+local fileProject = io.open('project.json', 'r')
+if not fileProject then
+  error('No such file or directory')
+  return
+end
+local stringProject = fileProject:read('*all')
+local jsonProject, _, err = json.decode(stringProject, 1, nil)
+if err then
+  error(err)
+end
+if not jsonProject then
+  error('jsonProject is nil')
+  return
+elseif not jsonProject.squish then
+  error('jsonProject.squish is nil')
+end
+
+local squish = jsonProject.squish
 
 local lfs = require('lfs')
 
 local _files = {}
 
-local regexPathFiles = string.format('^%s/', settings.pathFiles)
+local regexPathFiles = string.format('^%s/', squish.pathFiles)
 
 local PATTERN = {
   MAIN = 'Main "%s"',
@@ -13,7 +33,7 @@ local PATTERN = {
 }
 
 local function isNotIgnoreDir(dirPath)
-  for _, value in ipairs(settings.ignoreDirs) do
+  for _, value in ipairs(squish.ignoreDirs) do
     if value == dirPath then
       return false
     end
@@ -28,7 +48,7 @@ local function attrdir(path)
       local fg = filePath:gsub(regexPathFiles, '')
       local attr = lfs.attributes(filePath)
       assert(type(attr) == 'table')
-      if file:find('%.lua$') and fg ~= settings.mainFile then
+      if file:find('%.lua$') and fg ~= squish.mainFile then
         table.insert(_files, fg)
       end
       if attr.mode == 'directory' and isNotIgnoreDir(fg) then
@@ -38,7 +58,6 @@ local function attrdir(path)
   end
 end
 
-
 local function getFilesInPathFiles(pathFiles)
   attrdir(pathFiles)
   return _files
@@ -46,15 +65,15 @@ end
 
 local function convertModulesToSquishFile(fs)
   local modules = {}
-  for i, filename in ipairs(fs) do
+  for _, filename in ipairs(fs) do
     local pathRequire = filename
         :gsub('/init%.lua$', ''):gsub('%.lua$', '')
         :gsub('/', '.')
     modules[#modules + 1] = string.format(PATTERN.MODULE, pathRequire, filename)
   end
 
-  local main = string.format(PATTERN.MAIN, settings.mainFile)
-  local output = string.format(PATTERN.OUTPUT, settings.outputFolder, settings.outputFile)
+  local main = string.format(PATTERN.MAIN, squish.mainFile)
+  local output = string.format(PATTERN.OUTPUT, squish.outputFolder, squish.outputFile)
   local squishy = string.format(
     '%s\n\n%s\n\n%s',
     main,
@@ -68,9 +87,9 @@ local function convertModulesToSquishFile(fs)
 end
 
 local function main()
-  local files = getFilesInPathFiles(settings.pathFiles)
+  local files = getFilesInPathFiles(squish.pathFiles)
   convertModulesToSquishFile(files)
-  lfs.mkdir(settings.outputFolder)
+  lfs.mkdir(squish.outputFolder)
 end
 
 main()

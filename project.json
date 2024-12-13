@@ -1,0 +1,12 @@
+{
+  "name": "template-moonly-squish",
+  "library": "lib",
+  "source": "src",
+  "squish": {
+    "pathFiles": "./src",
+    "mainFile": "init.lua",
+    "outputFolder": "build",
+    "outputFile": "release.lua",
+    "ignoreDirs": ["core/test"]
+  }
+}
