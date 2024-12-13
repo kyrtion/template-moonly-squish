@@ -9,6 +9,7 @@ set "pathLuaJIT=%currentPath%.squish"
 @REM Запуск сборщик, бильд в build
 %pathLuaJIT%\luajit.exe %pathLuaJIT%\lua\squish.lua src
 
+@REM Удаление squishy после сборщика
 cd src
 del "squishy"
 cd %currentPath%

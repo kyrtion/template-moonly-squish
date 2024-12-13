@@ -2,6 +2,7 @@
   "name": "template-moonly-squish",
   "library": "lib",
   "source": "src",
+
   "squish": {
     "pathFiles": "./src",
     "mainFile": "init.lua",

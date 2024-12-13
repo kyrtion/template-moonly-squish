@@ -82,6 +82,9 @@ local function convertModulesToSquishFile(fs)
   )
 
   local file = io.open('src/squishy', 'w')
+  if not file then
+    error('Cant create new file squishy in directory ./src')
+  end
   file:write(squishy)
   file:close()
 end
